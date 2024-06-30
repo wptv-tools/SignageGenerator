@@ -90,17 +90,19 @@ app.on('activate', () => {
     }
 });
 
-ipcMain.on('file-dropped', (event, filePath) => {
+ipcMain.on('files-dropped', (event, filePaths) => {
     if (projectFolder) {
-        const fileName = path.basename(filePath);
-        const destination = path.join(projectFolder, fileName);
-        fs.copyFile(filePath, destination, (err) => {
-            if (err) {
-                console.error('File copy failed:', err);
-            } else {
-                updateXML(fileName);
-                event.reply('file-copied', destination);
-            }
+        filePaths.forEach(filePath => {
+            const fileName = path.basename(filePath);
+            const destination = path.join(projectFolder, fileName);
+            fs.copyFile(filePath, destination, (err) => {
+                if (err) {
+                    console.error('File copy failed:', err);
+                } else {
+                    updateXML(fileName); // Ensure updateXML is defined
+                    event.reply('file-copied', destination);
+                }
+            });
         });
     }
 });

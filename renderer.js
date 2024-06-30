@@ -14,11 +14,12 @@ window.ondragover = () => { return false; };
 window.ondrop = (e) => {
     e.preventDefault();
     if (e.dataTransfer.files.length > 0) {
-        const filePath = e.dataTransfer.files[0].path;
-        ipcRenderer.send('file-dropped', filePath);
+        const filePaths = Array.from(e.dataTransfer.files).map(file => file.path);
+        ipcRenderer.send('files-dropped', filePaths);
     }
     return false;
 };
+
 
 ipcRenderer.on('file-copied', (event, filePath) => {
     const fileName = filePath.split(/(\\|\/)/g).pop();
