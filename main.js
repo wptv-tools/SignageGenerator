@@ -99,7 +99,7 @@ ipcMain.on('files-dropped', (event, filePaths) => {
                 if (err) {
                     console.error('File copy failed:', err);
                 } else {
-                    updateXML(fileName); // Ensure updateXML is defined
+                    updateJSON(fileName); // Ensure updateJSON is defined
                     event.reply('file-copied', destination);
                 }
             });
@@ -108,56 +108,56 @@ ipcMain.on('files-dropped', (event, filePaths) => {
 });
 
 ipcMain.on('load-images', (event) => {
-    const xmlPath = path.join(projectFolder, 'images.xml');
-    if (fs.existsSync(xmlPath)) {
-        const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-        let images = JSON.parse(xmlData);
+    const jsonPath = path.join(projectFolder, 'images.json');
+    if (fs.existsSync(jsonPath)) {
+        const jsonData = fs.readFileSync(jsonPath, 'utf-8');
+        let images = JSON.parse(jsonData);
 
         images = images.filter(image => {
             const imagePath = path.join(projectFolder, image.name);
             if (fs.existsSync(imagePath)) {
                 return true;
             } else {
-                console.log(`File ${image.name} does not exist, removing from XML.`);
+                console.log(`File ${image.name} does not exist, removing from JSON.`);
                 return false;
             }
         });
 
-        fs.writeFileSync(xmlPath, JSON.stringify(images, null, 2), 'utf-8');
+        fs.writeFileSync(jsonPath, JSON.stringify(images, null, 2), 'utf-8');
         event.reply('images-loaded', images);
     }
 });
 
 ipcMain.on('update-image', (event, image) => {
-    updateXML(image.file, image);
+    updateJSON(image.file, image);
 });
 
 ipcMain.on('update-order', (event, newOrder) => {
-    const xmlPath = path.join(projectFolder, 'images.xml');
-    if (fs.existsSync(xmlPath)) {
-        const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-        let images = JSON.parse(xmlData);
+    const jsonPath = path.join(projectFolder, 'images.json');
+    if (fs.existsSync(jsonPath)) {
+        const jsonData = fs.readFileSync(jsonPath, 'utf-8');
+        let images = JSON.parse(jsonData);
         images.sort((a, b) => newOrder.indexOf(a.name) - newOrder.indexOf(b.name));
-        fs.writeFileSync(xmlPath, JSON.stringify(images, null, 2), 'utf-8');
+        fs.writeFileSync(jsonPath, JSON.stringify(images, null, 2), 'utf-8');
     }
 });
 
 ipcMain.on('delete-image', (event, fileName) => {
     if (projectFolder) {
         const filePath = path.join(projectFolder, fileName);
-        const xmlPath = path.join(projectFolder, 'images.xml');
+        const jsonPath = path.join(projectFolder, 'images.json');
         let fileDeleted = false;
         if (fs.existsSync(filePath)) {
             fs.unlinkSync(filePath);
             fileDeleted = true;
         }
-        if (fs.existsSync(xmlPath)) {
-            const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-            let images = JSON.parse(xmlData);
+        if (fs.existsSync(jsonPath)) {
+            const jsonData = fs.readFileSync(jsonPath, 'utf-8');
+            let images = JSON.parse(jsonData);
             const initialLength = images.length;
             images = images.filter(img => img.name !== fileName);
             if (images.length !== initialLength) {
-                fs.writeFileSync(xmlPath, JSON.stringify(images, null, 2), 'utf-8');
+                fs.writeFileSync(jsonPath, JSON.stringify(images, null, 2), 'utf-8');
             }
         }
         if (fileDeleted) {
@@ -208,12 +208,12 @@ ipcMain.on('confirm-dialog-response', (event, response) => {
     }
 });
 
-function updateXML(fileName, update = null) {
-    const xmlPath = path.join(projectFolder, 'images.xml');
+function updateJSON(fileName, update = null) {
+    const jsonPath = path.join(projectFolder, 'images.json');
     let images = [];
-    if (fs.existsSync(xmlPath)) {
-        const xmlData = fs.readFileSync(xmlPath, 'utf-8');
-        images = JSON.parse(xmlData);
+    if (fs.existsSync(jsonPath)) {
+        const jsonData = fs.readFileSync(jsonPath, 'utf-8');
+        images = JSON.parse(jsonData);
     }
     const index = images.findIndex(img => img.name === fileName);
     if (index !== -1 && update) {
@@ -222,5 +222,5 @@ function updateXML(fileName, update = null) {
     } else if (index === -1) {
         images.push({ name: fileName, alwaysShow: true, start: null, end: null });
     }
-    fs.writeFileSync(xmlPath, JSON.stringify(images, null, 2), 'utf-8');
+    fs.writeFileSync(jsonPath, JSON.stringify(images, null, 2), 'utf-8');
 }
