@@ -1,6 +1,6 @@
 # Changelog
 
-## [1.0.2] - 2024-07-01
+## [1.0.2] - 2024-07-02
 
 - auf JSON Datei umgestellt und alles umbenannt.
 - Readme aktualisiert.
